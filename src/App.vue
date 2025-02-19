@@ -27,11 +27,11 @@ export default {
             menuData: [
                 {
                     name: '时间戳转换',
-                    path: '/timeTools',
+                    path: '/tools/timeTools',
                 },
                 {
                     name: 'JSON格式化',
-                    path: '/parseJson',
+                    path: '/tools/parseJson',
                 },
                 {
                     name: '更多',
@@ -39,11 +39,11 @@ export default {
                     children: [
                         {
                             name: 'Profile',
-                            path: '/profile',
+                            path: '/tools/profile',
                         },
                         {
                             name: 'Security',
-                            path: '/security',
+                            path: '/tools/security',
                         },
                     ],
                 },

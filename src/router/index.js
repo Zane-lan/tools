@@ -7,10 +7,11 @@ import Security from '../views/SecurityPage.vue';
 
 const routes = [
     { path: '/', component: Home },
-    { path: '/timeTools', component: TimeTools },
-    { path: '/parseJson', component: ParseJson },
-    { path: '/profile', component: Profile },
-    { path: '/security', component: Security },
+    { path: '/tools', component: Home },
+    { path: '/tools/timeTools', component: TimeTools },
+    { path: '/tools/parseJson', component: ParseJson },
+    { path: '/tools/profile', component: Profile },
+    { path: '/tools/security', component: Security },
 ];
 
 const router = createRouter({
