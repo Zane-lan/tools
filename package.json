@@ -2,11 +2,12 @@
   "name": "tools",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://Zane-lan.github.io/仓库名/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "deploy": "vue-cli-service build && npx gh-pages -d dist --add"
+    "deploy": "vue-cli-service build && gh-pages -d dist"
   },
   "dependencies": {
     "core-js": "^3.8.3",
@@ -21,7 +22,8 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3"
+    "eslint-plugin-vue": "^8.0.3",
+    "gh-pages": "^6.3.0"
   },
   "eslintConfig": {
     "root": true,
