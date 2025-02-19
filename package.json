@@ -2,7 +2,7 @@
   "name": "tools",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Zane-lan.github.io/仓库名/",
+  "homepage": "https://zane-lan.github.io/tools/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
