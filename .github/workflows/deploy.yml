@@ -25,6 +25,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         run: |
-          git config --global user.email "zy1229568031@163.com"
-          git config --global user.name "Zane-lan"
+          git remote set-url origin git@github.com:Zane-lan/tools.git
           npm run deploy
