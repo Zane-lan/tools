@@ -120,7 +120,6 @@ h2 {
 /* 输入框 */
 .json-input {
     flex-grow: 1;
-    width: 100%;
     padding: 12px;
     font-size: 14px;
     font-family: "Courier New", monospace;
