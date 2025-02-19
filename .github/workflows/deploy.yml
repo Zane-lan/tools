@@ -28,3 +28,4 @@ jobs:
           git config --global user.email "zy1229568031@163.com"
           git config --global user.name "Zane-lan"
           npm run deploy
+          
