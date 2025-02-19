@@ -87,7 +87,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 94vh; /* 让整体高度不超出屏幕 */
+    height: 90vh; /* 让整体高度不超出屏幕 */
     background: linear-gradient(135deg, #e3f2fd, #f1f8e9);
     padding: 10px;
 }

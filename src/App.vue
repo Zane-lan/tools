@@ -1,7 +1,7 @@
 <template>
     <div class="app">
         <div class="sidebar">
-            <!-- 使用 v-model 绑定 searchQuery -->
+            <h2 class="sidebar-title">工具菜单</h2>
             <TreeMenu
                     :menu-data="menuData"
                     v-model:searchQuery="searchQuery"
@@ -23,7 +23,7 @@ export default {
     },
     data() {
         return {
-            searchQuery: '', // 搜索关键字
+            searchQuery: '',
             menuData: [
                 {
                     name: '时间戳转换',
@@ -51,12 +51,10 @@ export default {
         };
     },
     methods: {
-        // 处理菜单项选中
         handleItemSelected(item) {
-            this.searchQuery = ''; // 清除搜索框内容
-            this.expandParentMenu(item); // 展开父菜单
+            this.searchQuery = '';
+            this.expandParentMenu(item);
         },
-        // 展开父菜单
         expandParentMenu(item) {
             const findParent = (menu, target) => {
                 for (const menuItem of menu) {
@@ -75,30 +73,47 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+/* 统一全局样式 */
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', Arial, sans-serif;
+    background-color: #f4f6f9;
 }
 
+/* 页面布局 */
 .app {
     display: flex;
-    height: 100vh;
+    height: 96vh;
 }
 
+/* 侧边栏样式 */
 .sidebar {
-    width: 250px;
-    background-color: #f5f5f5;
-    border-right: 1px solid #ddd;
+    height: 94vh;
+    width: 280px;
+    //background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: black;
     padding: 20px;
-    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
+.sidebar-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* 内容区域样式 */
 .content {
     flex: 1;
-    padding-top: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 20px;
+    height: 94vh;
     background-color: #fff;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    overflow: auto;
 }
 </style>

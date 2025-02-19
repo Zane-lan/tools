@@ -5,18 +5,17 @@
                 v-if="isRoot"
                 :value="searchQuery"
                 @input="onInput"
-                placeholder="Search..."
+                placeholder="🔍 搜索工具..."
                 class="search-input"
         />
         <!-- 树形菜单 -->
         <ul class="tree-menu">
             <li v-for="item in filteredMenu" :key="item.name">
                 <div @click="handleItemClick(item)" class="menu-item">
-                    <!-- 高亮匹配项 -->
                     <span v-html="highlightMatch(item.name)"></span>
                     <span v-if="item.children" class="arrow">
-            {{ item.isOpen ? '▼' : '▶' }}
-          </span>
+                        {{ item.isOpen ? '▼' : '▶' }}
+                    </span>
                 </div>
                 <!-- 递归渲染子菜单 -->
                 <TreeMenu
@@ -36,18 +35,9 @@
 export default {
     name: 'TreeMenu',
     props: {
-        menuData: {
-            type: Array,
-            required: true,
-        },
-        searchQuery: {
-            type: String,
-            default: '',
-        },
-        isRoot: {
-            type: Boolean,
-            default: true,
-        },
+        menuData: { type: Array, required: true },
+        searchQuery: { type: String, default: '' },
+        isRoot: { type: Boolean, default: true },
     },
     computed: {
         // 过滤菜单项
@@ -58,40 +48,30 @@ export default {
             const filterItems = (items) => {
                 return items
                         .map((item) => {
-                            // 复制对象以避免修改原始数据
                             const newItem = { ...item };
                             if (newItem.children) {
                                 newItem.children = filterItems(newItem.children);
-                                // 如果子菜单有匹配项，展开父菜单
                                 if (newItem.children.length > 0) {
                                     newItem.isOpen = true;
                                 }
                             }
                             return newItem;
                         })
-                        .filter((item) => {
-                            // 保留匹配项或其子项匹配的菜单项
-                            return (
-                                    item.name.toLowerCase().includes(query) ||
-                                    (item.children && item.children.length > 0)
-                            );
-                        });
+                        .filter((item) => item.name.toLowerCase().includes(query) || (item.children && item.children.length > 0));
             };
 
             return filterItems(this.menuData);
         },
     },
     methods: {
-        // 处理菜单项点击
         handleItemClick(item) {
             if (item.children) {
                 item.isOpen = !item.isOpen;
             } else {
-                this.$emit('item-selected', item); // 通知父组件选中了菜单项
-                this.$router.push(item.path); // 跳转到对应页面
+                this.$emit('item-selected', item);
+                this.$router.push(item.path);
             }
         },
-        // 高亮匹配的关键字
         highlightMatch(text) {
             const query = this.searchQuery.toLowerCase();
             if (!query) return text;
@@ -99,55 +79,82 @@ export default {
             const regex = new RegExp(`(${query})`, 'gi');
             return text.replace(regex, '<span class="highlight">$1</span>');
         },
-        // 输入事件处理
         onInput(event) {
             this.$emit('update:searchQuery', event.target.value);
         },
-        // 处理子菜单项选中
         handleItemSelected(item) {
-            this.$emit('item-selected', item); // 向上传递选中事件
+            this.$emit('item-selected', item);
         },
     },
 };
 </script>
 
-<style>
+<style scoped>
+/* 容器样式 */
 .tree-menu-container {
-    width: 100%;
+    width: 90%;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 5px;
 }
 
+/* 搜索框 */
 .search-input {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
+    padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
+.search-input:focus {
+    border-color: #42b983;
+    box-shadow: 0 0 5px rgba(66, 185, 131, 0.5);
+}
+
+/* 树形菜单 */
 .tree-menu {
-    list-style-type: none;
-    padding-left: 20px;
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
 }
 
+/* 菜单项 */
 .menu-item {
-    padding: 8px;
+    padding: 8px 12px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: background 0.3s, transform 0.1s;
 }
 
 .menu-item:hover {
-    background-color: #f0f0f0;
+    background: #e0f2f1;
 }
 
+.menu-item:active {
+    transform: scale(0.98);
+}
+
+/* 箭头样式 */
 .arrow {
     font-size: 12px;
+    color: #666;
+    transition: transform 0.2s ease-in-out;
 }
 
+/* 高亮匹配 */
 .highlight {
-    background-color: yellow;
+    background: #ffee58;
+    color: #333;
     font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
 }
 </style>

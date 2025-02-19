@@ -120,7 +120,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 94vh;
+    height: 91vh;
     background-color: #f4f4f4;
 }
 
