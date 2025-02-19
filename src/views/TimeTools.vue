@@ -39,6 +39,7 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from "vue";
+import { ElNotification } from "element-plus";
 
 export default {
     name: "TimeTools",
@@ -67,14 +68,26 @@ export default {
         const copyTimestamp = (text) => {
             navigator.clipboard
                     .writeText(text.toString())
-                    .then(() => alert("已复制到剪贴板！"))
+                    .then(() => {
+                        ElNotification({
+                            title: "成功",
+                            message: "已复制到剪贴板！",
+                            type: "success",
+                            duration: 2000,
+                        });
+                    })
                     .catch((err) => console.error("复制失败：", err));
         };
 
         const convertTimeToTimestamp = () => {
             const date = new Date(timeInput.value);
             if (isNaN(date.getTime())) {
-                alert("请输入正确的时间格式（YYYY-MM-DD HH:mm:ss）");
+                ElNotification({
+                    title: "错误",
+                    message: "请输入正确的时间格式（YYYY-MM-DD HH:mm:ss）",
+                    type: "error",
+                    duration: 3000,
+                });
                 return;
             }
             convertedTimestamp.value = date.getTime();
@@ -83,7 +96,12 @@ export default {
         const convertTimestampToTime = () => {
             const timestampValue = parseInt(timestampInput.value, 10);
             if (isNaN(timestampValue)) {
-                alert("请输入正确的时间戳（毫秒）");
+                ElNotification({
+                    title: "错误",
+                    message: "请输入正确的时间戳（毫秒）",
+                    type: "error",
+                    duration: 3000,
+                });
                 return;
             }
             const date = new Date(timestampValue);
@@ -113,6 +131,7 @@ export default {
     },
 };
 </script>
+
 
 <style scoped>
 /* 页面居中 */
