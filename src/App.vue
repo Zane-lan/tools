@@ -38,8 +38,8 @@ export default {
                     isOpen: false,
                     children: [
                         {
-                            name: 'Profile',
-                            path: '/profile',
+                            name: 'CRON表达式',
+                            path: '/cronGenerator',
                         },
                         {
                             name: 'Security',
