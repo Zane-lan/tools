@@ -34,13 +34,13 @@ export default {
                     path: '/parseJson',
                 },
                 {
+                    name: 'CRON表达式',
+                    path: '/cronGenerator',
+                },
+                {
                     name: '更多',
                     isOpen: false,
                     children: [
-                        {
-                            name: 'CRON表达式',
-                            path: '/cronGenerator',
-                        },
                         {
                             name: 'Security',
                             path: '/security',
