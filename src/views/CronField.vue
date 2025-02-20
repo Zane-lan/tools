@@ -1,10 +1,10 @@
 <template>
     <div class="cron-field">
         <el-radio-group v-model="selectedType">
-            <el-radio label="*">每{{ unit }}</el-radio>
-            <el-radio label="range">范围</el-radio>
-            <el-radio label="step">间隔</el-radio>
-            <el-radio label="specific">指定</el-radio>
+            <el-radio :value=" '*' ">每{{ unit }}</el-radio>
+            <el-radio :value="'range'">范围</el-radio>
+            <el-radio :value="'step'">间隔</el-radio>
+            <el-radio :value="'specific'">指定</el-radio>
         </el-radio-group>
 
         <div v-if="selectedType === 'range'">

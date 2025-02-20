@@ -69,14 +69,21 @@ export default {
         // 生成未来 10 次的执行时间
         const generateNextExecutions = (expression) => {
             try {
-                const interval = parser.parseExpression(expression, { utc: true });
-                return Array.from({ length: 10 }, () =>
-                        new Date(interval.next().toISOString()).toLocaleString("zh-CN", { hour12: false })
+                const interval = parser.parseExpression(expression, {utc: true});
+                return Array.from({length: 10}, () =>
+                        new Date(interval.next().toISOString()).toLocaleString("zh-CN", {hour12: false})
                 );
             } catch (e) {
                 console.error("Cron 解析失败:", e);
                 return ["无效的 Cron 表达式"];
             }
+        };
+
+        // 解析 Cron 表达式并更新 UI
+        const parseExpression = () => {
+            console.log("解析到 UI");
+            // 这里可以添加你的解析逻辑，更新 UI
+            // 例如：可以通过某种方式将 Cron 字段与 UI 进行映射
         };
 
         // 运行 Cron 模拟
@@ -90,11 +97,11 @@ export default {
             cronExpression,
             executionTimes,
             runCronSimulation,
+            parseExpression, // 返回到模板中
         };
     },
 };
 </script>
-
 
 <style scoped>
 .cron-generator {
