@@ -36,7 +36,6 @@
 
         <!-- 操作按钮 -->
         <div class="cron-actions">
-            <el-button type="primary" @click="parseExpression">解析到 UI</el-button>
             <el-button type="success" @click="runCronSimulation">运行</el-button>
         </div>
 
@@ -53,7 +52,7 @@
 <script>
 import { ref, computed } from "vue";
 import CronField from "./CronField.vue";
-import parser from "cron-parser";
+import { parseQuartzCron } from "../utils/cronParser"; // ✅ 直接导入解析器
 
 export default {
     name: "CronGenerator",
@@ -66,29 +65,14 @@ export default {
         // 计算完整的 Cron 表达式
         const cronExpression = computed(() => cronFields.value.join(" "));
 
-        // 生成未来 10 次的执行时间
-        const generateNextExecutions = (expression) => {
+        // 运行 Cron 模拟（使用自定义解析器）
+        const runCronSimulation = () => {
             try {
-                const interval = parser.parseExpression(expression, {utc: true});
-                return Array.from({length: 10}, () =>
-                        new Date(interval.next().toISOString()).toLocaleString("zh-CN", {hour12: false})
-                );
+                executionTimes.value = parseQuartzCron(cronExpression.value, 10);
             } catch (e) {
                 console.error("Cron 解析失败:", e);
-                return ["无效的 Cron 表达式"];
+                executionTimes.value = ["无效的 Cron 表达式"];
             }
-        };
-
-        // 解析 Cron 表达式并更新 UI
-        const parseExpression = () => {
-            console.log("解析到 UI");
-            // 这里可以添加你的解析逻辑，更新 UI
-            // 例如：可以通过某种方式将 Cron 字段与 UI 进行映射
-        };
-
-        // 运行 Cron 模拟
-        const runCronSimulation = () => {
-            executionTimes.value = generateNextExecutions(cronExpression.value);
         };
 
         return {
@@ -97,11 +81,11 @@ export default {
             cronExpression,
             executionTimes,
             runCronSimulation,
-            parseExpression, // 返回到模板中
         };
     },
 };
 </script>
+
 
 <style scoped>
 .cron-generator {
