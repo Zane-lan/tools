@@ -91,7 +91,6 @@ body {
 .sidebar {
     height: 94vh;
     width: 280px;
-    //background: linear-gradient(135deg, #4caf50, #2e7d32);
     color: black;
     padding: 20px;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
