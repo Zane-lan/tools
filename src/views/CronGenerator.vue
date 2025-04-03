@@ -3,15 +3,20 @@
         <el-card class="cron-card">
             <template #header>
                 <div class="card-header">
-                    <span>Cron 表达式生成器</span>
-                    <el-select v-model="timezone" placeholder="选择时区">
-                        <el-option v-for="tz in timezones" 
-                                 :key="tz" :label="tz" :value="tz" />
-                    </el-select>
+                    <div class="header-left">
+                        <h2>Cron 表达式生成器</h2>
+                        <el-tag type="info" size="small">Quartz 格式</el-tag>
+                    </div>
+                    <div class="header-right">
+                        <el-select v-model="timezone" placeholder="选择时区" size="small">
+                            <el-option v-for="tz in timezones" 
+                                     :key="tz" :label="tz" :value="tz" />
+                        </el-select>
+                    </div>
                 </div>
             </template>
 
-            <el-tabs v-model="activeTab">
+            <el-tabs v-model="activeTab" class="cron-tabs">
                 <el-tab-pane label="秒" name="second">
                     <CronField v-model="cronFields[0]" unit="秒" type="second" 
                               @field-error="handleFieldError" />
@@ -46,48 +51,72 @@
         <el-card class="expression-card">
             <template #header>
                 <div class="card-header">
-                    <span>生成的表达式</span>
-                    <div class="expression-actions">
-                        <el-button type="primary" @click="copyExpression" 
-                                 :disabled="hasError">
-                            复制
-                        </el-button>
-                        <el-button type="success" @click="runCronSimulation" 
-                                 :disabled="hasError">
-                            预览
-                        </el-button>
+                    <div class="header-left">
+                        <h3>生成的表达式</h3>
+                        <el-tag :type="hasError ? 'danger' : 'success'" size="small">
+                            {{ hasError ? '无效' : '有效' }}
+                        </el-tag>
+                    </div>
+                    <div class="header-right">
+                        <el-button-group>
+                            <el-button type="primary" @click="copyExpression" 
+                                     :disabled="hasError" size="small">
+                                <el-icon><CopyDocument /></el-icon>
+                                复制
+                            </el-button>
+                            <el-button type="success" @click="runCronSimulation" 
+                                     :disabled="hasError" size="small">
+                                <el-icon><View /></el-icon>
+                                预览
+                            </el-button>
+                        </el-button-group>
+                        <el-tooltip content="点击查看表达式说明" placement="top">
+                            <el-button @click="showExpressionHelp" size="small">
+                                <el-icon><QuestionFilled /></el-icon>
+                            </el-button>
+                        </el-tooltip>
                     </div>
                 </div>
             </template>
 
-            <el-input v-model="cronExpression" readonly :class="{ 'has-error': hasError }">
-                <template #append>
-                    <el-tooltip content="点击查看表达式说明" placement="top">
-                        <el-button @click="showExpressionHelp">
-                            <el-icon><QuestionFilled /></el-icon>
-                        </el-button>
-                    </el-tooltip>
-                </template>
-            </el-input>
+            <div class="expression-content">
+                <el-input v-model="cronExpression" readonly 
+                         :class="{ 'has-error': hasError }"
+                         class="expression-input">
+                    <template #prepend>
+                        <span class="expression-label">表达式</span>
+                    </template>
+                </el-input>
 
-            <div v-if="hasError" class="error-message">
-                {{ errorMessage }}
+                <div v-if="hasError" class="error-message">
+                    <el-icon><Warning /></el-icon>
+                    {{ errorMessage }}
+                </div>
             </div>
         </el-card>
 
         <el-card v-if="executionTimes.length > 0" class="preview-card">
             <template #header>
                 <div class="card-header">
-                    <span>未来 10 次执行时间</span>
-                    <span class="timezone-info">时区: {{ timezone }}</span>
+                    <div class="header-left">
+                        <h3>未来 10 次执行时间</h3>
+                        <el-tag type="info" size="small">时区: {{ timezone }}</el-tag>
+                    </div>
                 </div>
             </template>
 
             <el-timeline>
                 <el-timeline-item v-for="(time, index) in executionTimes" 
-                                :key="index" :timestamp="time" 
-                                type="primary">
-                    <span>第 {{ index + 1 }} 次执行</span>
+                                :key="index" 
+                                :timestamp="time" 
+                                :type="index === 0 ? 'primary' : 'info'"
+                                :hollow="index !== 0">
+                    <div class="timeline-content">
+                        <span class="execution-number">第 {{ index + 1 }} 次执行</span>
+                        <el-tag size="small" type="success" class="time-tag">
+                            {{ time }}
+                        </el-tag>
+                    </div>
                 </el-timeline-item>
             </el-timeline>
         </el-card>
@@ -98,7 +127,7 @@
 import { ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import CronField from './CronField.vue';
-import { QuestionFilled } from '@element-plus/icons-vue';
+import { QuestionFilled, CopyDocument, View, Warning } from '@element-plus/icons-vue';
 import { validateCronExpression } from '../utils/cronUtils';
 import { parseQuartzCron } from '../utils/cronParser';
 
@@ -106,7 +135,10 @@ export default {
     name: 'CronGenerator',
     components: { 
         CronField,
-        QuestionFilled
+        QuestionFilled,
+        CopyDocument,
+        View,
+        Warning
     },
 
     setup() {
@@ -220,23 +252,73 @@ export default {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    background-color: #f5f7fa;
+    min-height: 100vh;
 }
 
 .cron-card,
 .expression-card,
 .preview-card {
     margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.cron-card:hover,
+.expression-card:hover,
+.preview-card:hover {
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 10px;
 }
 
-.expression-actions {
+.header-left {
     display: flex;
+    align-items: center;
     gap: 10px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+h2, h3 {
+    margin: 0;
+    font-weight: 600;
+    color: #303133;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 16px;
+}
+
+.cron-tabs {
+    margin-top: 10px;
+}
+
+.expression-content {
+    padding: 10px 0;
+}
+
+.expression-input {
+    margin-bottom: 10px;
+}
+
+.expression-label {
+    color: #606266;
+    font-weight: 500;
 }
 
 .has-error {
@@ -245,16 +327,89 @@ export default {
 
 .error-message {
     color: #f56c6c;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-.timezone-info {
     font-size: 14px;
-    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
 }
 
-.el-timeline {
-    margin-top: 20px;
+.timeline-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.execution-number {
+    color: #606266;
+    font-size: 14px;
+}
+
+.time-tag {
+    font-family: monospace;
+    font-size: 13px;
+}
+
+:deep(.el-timeline-item__node) {
+    background-color: #409eff;
+}
+
+:deep(.el-timeline-item__tail) {
+    border-left-color: #e4e7ed;
+}
+
+:deep(.el-timeline-item__timestamp) {
+    color: #909399;
+    font-size: 13px;
+}
+
+:deep(.el-tabs__item) {
+    font-size: 14px;
+    padding: 0 20px;
+    height: 40px;
+    line-height: 40px;
+}
+
+:deep(.el-tabs__nav-wrap::after) {
+    height: 1px;
+}
+
+:deep(.el-card__header) {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ebeef5;
+}
+
+:deep(.el-button-group) {
+    margin-right: 8px;
+}
+
+:deep(.el-select) {
+    width: 200px;
+}
+
+:deep(.el-tag) {
+    margin-left: 8px;
+}
+
+@media (max-width: 768px) {
+    .cron-generator {
+        padding: 10px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .header-right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    :deep(.el-select) {
+        width: 100%;
+    }
 }
 </style>
