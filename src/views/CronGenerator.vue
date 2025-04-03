@@ -64,7 +64,7 @@
                 <template #append>
                     <el-tooltip content="点击查看表达式说明" placement="top">
                         <el-button @click="showExpressionHelp">
-                            <el-icon><Question /></el-icon>
+                            <el-icon><QuestionFilled /></el-icon>
                         </el-button>
                     </el-tooltip>
                 </template>
@@ -98,7 +98,7 @@
 import { ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import CronField from './CronField.vue';
-import { Question } from '@element-plus/icons-vue';
+import { QuestionFilled } from '@element-plus/icons-vue';
 import { validateCronExpression } from '../utils/cronUtils';
 import { parseQuartzCron } from '../utils/cronParser';
 
@@ -106,7 +106,7 @@ export default {
     name: 'CronGenerator',
     components: { 
         CronField,
-        Question
+        QuestionFilled
     },
 
     setup() {
