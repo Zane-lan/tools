@@ -16,9 +16,28 @@ export function parseQuartzCron(expression, count = 10, timezone = 'UTC') {
     let iterations = 0;
     const MAX_ITERATIONS = 1000; // 防止无限循环
     
+    // 优化：根据表达式类型选择合适的时间增量
+    const timeIncrement = getTimeIncrement(sec, min, hour);
+    
     while (results.length < count && iterations < MAX_ITERATIONS) {
         iterations++;
-        now.setSeconds(now.getSeconds() + 1);
+        
+        // 根据表达式类型增加时间
+        if (timeIncrement === 'second') {
+            now.setSeconds(now.getSeconds() + 1);
+        } else if (timeIncrement === 'minute') {
+            now.setMinutes(now.getMinutes() + 1);
+            now.setSeconds(0);
+        } else if (timeIncrement === 'hour') {
+            now.setHours(now.getHours() + 1);
+            now.setMinutes(0);
+            now.setSeconds(0);
+        } else if (timeIncrement === 'day') {
+            now.setDate(now.getDate() + 1);
+            now.setHours(0);
+            now.setMinutes(0);
+            now.setSeconds(0);
+        }
         
         if (matchField(now.getSeconds(), sec, 'second', now) &&
             matchField(now.getMinutes(), min, 'minute', now) &&
@@ -36,6 +55,14 @@ export function parseQuartzCron(expression, count = 10, timezone = 'UTC') {
     }
     
     return results;
+}
+
+// 根据表达式类型确定合适的时间增量
+function getTimeIncrement(sec, min, hour) {
+    if (sec !== '*' && sec !== '?') return 'second';
+    if (min !== '*' && min !== '?') return 'minute';
+    if (hour !== '*' && hour !== '?') return 'hour';
+    return 'day';
 }
 
 function matchField(value, field, type, date) {
