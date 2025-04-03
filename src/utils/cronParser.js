@@ -1,52 +1,138 @@
-export function parseQuartzCron(expression, count = 10) {
-    const parts = expression.split(" ");
-    if (parts.length !== 7) throw new Error("无效的 Quartz Cron 表达式");
+import { MONTH_ALIASES, WEEK_ALIASES } from './cronUtils';
+
+export function parseQuartzCron(expression, count = 10, timezone = 'UTC') {
+    const parts = expression.split(' ');
+    if (parts.length !== 7) throw new Error('无效的 Quartz Cron 表达式');
     
     const [sec, min, hour, day, month, week, year] = parts;
     
     // 获取当前时间
     let now = new Date();
-    now.setMilliseconds(0); // 确保毫秒数为 0
+    // 转换为目标时区
+    now = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+    now.setMilliseconds(0);
     
     const results = [];
+    let iterations = 0;
+    const MAX_ITERATIONS = 1000; // 防止无限循环
     
-    while (results.length < count) {
-        now.setSeconds(now.getSeconds() + 1); // 每秒递增
+    while (results.length < count && iterations < MAX_ITERATIONS) {
+        iterations++;
+        now.setSeconds(now.getSeconds() + 1);
         
-        if (
-                matchField(now.getSeconds(), sec, 0, 59) &&
-                matchField(now.getMinutes(), min, 0, 59) &&
-                matchField(now.getHours(), hour, 0, 23) &&
-                matchField(now.getDate(), day, 1, 31) &&
-                matchField(now.getMonth() + 1, month, 1, 12) &&
-                matchField(now.getDay(), week, 0, 6) &&
-                matchField(now.getFullYear(), year, 1970, 2099)
-        ) {
-            results.push(now.toLocaleString("zh-CN", { hour12: false }));
+        if (matchField(now.getSeconds(), sec, 'second', now) &&
+            matchField(now.getMinutes(), min, 'minute', now) &&
+            matchField(now.getHours(), hour, 'hour', now) &&
+            matchField(now.getDate(), day, 'day', now) &&
+            matchField(now.getMonth() + 1, month, 'month', now) &&
+            matchField(now.getDay(), week, 'week', now) &&
+            matchField(now.getFullYear(), year, 'year', now)) {
+            results.push(now.getTime());
         }
+    }
+    
+    if (iterations >= MAX_ITERATIONS) {
+        throw new Error('无法计算下次执行时间，请检查表达式');
     }
     
     return results;
 }
 
-// 判断当前值是否匹配 Cron 规则
-function matchField(value, field, min, max) {
-    if (field === "*") return true;
-    if (field === "?") return true;
+function matchField(value, field, type, date) {
+    // 处理特殊字符
+    if (field === '*' || field === '?') return true;
     
-    if (field.includes(",")) {
-        return field.split(",").some(part => matchField(value, part, min, max));
+    // 替换别名
+    field = replaceAliases(field, type);
+    
+    // 处理特殊字符
+    if (field.includes('L')) {
+        return isLastDayMatch(value, field, type, date);
+    }
+    if (field.includes('W')) {
+        return isWorkdayMatch(value, field, date);
+    }
+    if (field.includes('#')) {
+        return isNthDayMatch(value, field, date);
     }
     
-    if (field.includes("-")) {
-        const [start, end] = field.split("-").map(Number);
+    // 处理列表
+    if (field.includes(',')) {
+        return field.split(',').some(part => matchField(value, part, type, date));
+    }
+    
+    // 处理范围
+    if (field.includes('-')) {
+        const [start, end] = field.split('-').map(Number);
         return value >= start && value <= end;
     }
     
-    if (field.includes("/")) {
-        const [start, step] = field.split("/").map(Number);
-        return (value - start) % step === 0;
+    // 处理步长
+    if (field.includes('/')) {
+        const [start, step] = field.split('/');
+        const startNum = start === '*' ? 0 : parseInt(start);
+        return (value - startNum) % parseInt(step) === 0;
     }
     
-    return Number(field) === value;
+    return parseInt(field) === value;
+}
+
+function replaceAliases(field, type) {
+    if (type === 'month') {
+        Object.entries(MONTH_ALIASES).forEach(([alias, num]) => {
+            field = field.replace(new RegExp(alias, 'gi'), num);
+        });
+    } else if (type === 'week') {
+        Object.entries(WEEK_ALIASES).forEach(([alias, num]) => {
+            field = field.replace(new RegExp(alias, 'gi'), num);
+        });
+    }
+    return field;
+}
+
+function isLastDayMatch(value, field, type, date) {
+    if (type === 'day') {
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        return value === lastDay;
+    }
+    if (type === 'week') {
+        const lastWeek = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDay();
+        return value === lastWeek;
+    }
+    return false;
+}
+
+function isWorkdayMatch(value, field, date) {
+    const dayValue = parseInt(field.replace('W', ''));
+    const targetDate = new Date(date.getFullYear(), date.getMonth(), dayValue);
+    const dayOfWeek = targetDate.getDay();
+    
+    // 如果是周末，调整到最近的工作日
+    if (dayOfWeek === 0) { // 周日
+        targetDate.setDate(targetDate.getDate() + 1);
+    } else if (dayOfWeek === 6) { // 周六
+        targetDate.setDate(targetDate.getDate() - 1);
+    }
+    
+    return value === targetDate.getDate();
+}
+
+function isNthDayMatch(value, field, date) {
+    const [dayOfWeek, nth] = field.split('#').map(Number);
+    
+    // 计算当月第n个星期几
+    let count = 0;
+    let currentDate = new Date(date.getFullYear(), date.getMonth(), 1);
+    
+    while (currentDate.getMonth() === date.getMonth()) {
+        if (currentDate.getDay() === dayOfWeek) {
+            count++;
+            if (count === nth) {
+                return value === currentDate.getDate();
+            }
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return false;
 }

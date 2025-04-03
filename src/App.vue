@@ -16,6 +16,7 @@
 
 <script>
 import TreeMenu from './components/TreeMenu.vue';
+import { useDark, useToggle } from '@vueuse/core';
 
 export default {
     components: {
@@ -70,6 +71,35 @@ export default {
             findParent(this.menuData, item);
         },
     },
+    setup() {
+        const isDark = useDark();
+        const toggleDark = useToggle(isDark);
+        
+        // 保存用户偏好
+        const savePreferences = () => {
+            localStorage.setItem('preferences', JSON.stringify({
+                isDark: isDark.value,
+                // 其他偏好设置
+            }));
+        };
+        
+        // 加载用户偏好
+        const loadPreferences = () => {
+            const preferences = JSON.parse(localStorage.getItem('preferences'));
+            if (preferences) {
+                isDark.value = preferences.isDark;
+            }
+        };
+        
+        onMounted(() => {
+            loadPreferences();
+        });
+        
+        return {
+            isDark,
+            toggleDark
+        };
+    }
 };
 </script>
 
