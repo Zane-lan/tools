@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 运行代码质量检查
+echo "🔍 Running code quality checks..."
+
+# 运行 ESLint 检查
+echo "Running ESLint..."
+npm run lint:check
+
+# 运行 Prettier 检查
+echo "Running Prettier..."
+npm run format:check
+
+# 运行类型检查（如果有 TypeScript）
+# echo "Running TypeScript check..."
+# npm run type-check
+
+echo "✅ All code quality checks passed!"

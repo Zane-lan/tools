@@ -1,0 +1,24 @@
+# 忽略的文件和目录
+dist/
+build/
+node_modules/
+coverage/
+public/
+*.min.js
+*.min.css
+# 配置文件
+vite.config.js
+.eslintrc.cjs
+.prettierrc
+# 生成文件
+*.d.ts
+# IDE 文件
+.vscode/
+.idea/
+# 日志文件
+*.log
+# 临时文件
+.cache/
+.tmp/
+.temp/dist/
+node_modules/

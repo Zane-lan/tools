@@ -1,0 +1,36 @@
+# 忽略的文件和目录
+dist/
+build/
+node_modules/
+coverage/
+*.min.js
+*.min.css
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+# 生成文件
+*.d.ts
+*.js.map
+*.css.map
+# 配置文件（通常不需要格式化）
+vite.config.js
+.eslintrc.cjs
+# IDE 文件
+.vscode/
+.idea/
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# 临时文件
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+# 第三方库
+public/vendor/
